@@ -16,6 +16,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".detail_activity"
+            android:label="@string/title_activity_detail_activity"
+            android:parentActivityName=".Main_Activity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="itreverie.weatherapp.Main_Activity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
