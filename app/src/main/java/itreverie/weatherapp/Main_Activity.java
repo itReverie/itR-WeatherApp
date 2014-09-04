@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 import itreverie.Processing.WeatherDataParser;
 
 
-public class Main_Activity extends Activity {
+public class main_activity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +52,8 @@ public class Main_Activity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_, menu);
-        return true;
+        getMenuInflater().inflate(R.menu.main_settings, menu);
+        return  super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -61,6 +63,7 @@ public class Main_Activity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this,settings_activity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -86,7 +89,7 @@ public class Main_Activity extends Activity {
         ListView listView=null;
         FetchWeatherTask weatherTask= new FetchWeatherTask();
         String[] listResultWeather = new String[0];
-
+        SharedPreferences sharedPref =null;
 
         //Constructor
         public Main_Fragment() {
@@ -98,11 +101,16 @@ public class Main_Activity extends Activity {
             //View rootView = inflater.inflate(R.layout.main_fragment, container, false);
             //return rootView;
 
+            sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());//where this is the context
+            String locationDefault = sharedPref.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+
+            //1851632
+            //2172797
             //GETTING THE INFORMATION FROM THE BACK END
             weatherTask= new FetchWeatherTask();
             listResultWeather = new String[0];
             try {
-                listResultWeather = weatherTask.execute("2172797").get();
+                listResultWeather = weatherTask.execute(locationDefault).get();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
