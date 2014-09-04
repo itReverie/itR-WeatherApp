@@ -1,16 +1,15 @@
 package itreverie.weatherapp;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-
+import android.widget.TextView;
 
 
 public class detail_activity extends Activity {
@@ -21,7 +20,7 @@ public class detail_activity extends Activity {
         setContentView(R.layout.detail_activity);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new Detail_Fragment())
                     .commit();
         }
     }
@@ -49,15 +48,31 @@ public class detail_activity extends Activity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class Detail_Fragment extends Fragment {
 
-        public PlaceholderFragment() {
+        public Detail_Fragment() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.detail_fragment, container, false);
+            //View rootView = inflater.inflate(R.layout.detail_fragment, container, false);
+            //return rootView;
+
+            //Get the intent
+            Intent intent= getActivity().getIntent();
+
+            //Populate it with the detail fragment XML
+            View rootView = inflater.inflate(R.layout.detail_fragment,container, false);
+
+            //If the intent is different that null and it has an extra text
+            if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT))
+            {
+                //Write that text in the Text View
+                String forecastStr= intent.getStringExtra(Intent.EXTRA_TEXT);
+                ((TextView) rootView.findViewById(R.id.detail_text)).setText(forecastStr);
+            }
+
             return rootView;
         }
     }

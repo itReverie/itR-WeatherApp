@@ -2,6 +2,8 @@ package itreverie.weatherapp;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -113,6 +116,24 @@ public class Main_Activity extends Activity {
             arrayAdapterForecast = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, listStringForecast);
             listView= ((ListView) rootView.findViewById(R.id.list_view_forecast));
             listView.setAdapter(arrayAdapterForecast);
+
+
+            //Adding the listener to CLICK IN THE ITEM
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Context context = getActivity();//parent.getContext();
+                    String text = arrayAdapterForecast.getItem(position);
+
+                    Intent intent= new Intent(getActivity(),detail_activity.class).putExtra(Intent.EXTRA_TEXT,text);
+                    startActivity(intent);
+
+                    //This is the code to have a toast (pop up message)
+                    //int duration = Toast.LENGTH_SHORT;
+                    //Toast toast = Toast.makeText(context, text, duration);
+                    //toast.show();
+                }
+            });
 
 
             return rootView;
