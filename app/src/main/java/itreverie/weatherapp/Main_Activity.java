@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,10 +92,65 @@ public class main_activity extends Activity {
         String[] listResultWeather = new String[0];
         SharedPreferences sharedPref =null;
 
-        //Constructor
+        //CONSTRUCTOR
         public Main_Fragment() {
         }
 
+
+
+        //EXTRA BUTTON "REFRESH"
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            //super.onCreateOptionsMenu(menu, inflater);
+            inflater.inflate(R.menu.mobileservice, menu);
+        }
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if(id == R.id.action_mobileservice)
+            {
+                CallAzureMobileService();
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+        public void CallAzureMobileService()
+        {
+            /*
+            try {
+                mClient = new MobileServiceClient(Constants.MOBILE_SERVICE_URL_JS,
+                        Constants.MOBILE_SERVICE_APPLICATION_KEY_JS, this);
+
+                dk.com.unaaplicacion.Distance distance = new dk.com.unaaplicacion.Distance();
+                distance.Name="100";
+                distance.Unit = "mts";
+
+                mClient.getTable(dk.com.unaaplicacion.Distance.class).insert(distance, new TableOperationCallback<dk.com.unaaplicacion.Distance>() {
+                    public void onCompleted(dk.com.unaaplicacion.Distance entity, Exception exception, ServiceFilterResponse response) {
+                        if (exception == null) {
+                            Log.v(LOG_TAG, "BUILD URI " + "SUCCESSFULL ");
+                        } else {
+                            String msg = exception.getCause().getMessage();
+                            Log.v(LOG_TAG, "FAIL "+msg);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.v(LOG_TAG, "BUILD URI " + e.getMessage());
+            }
+            */
+        }
+
+
+
+
+        //LIST ITEMS IN THE MAIN LAYOUT
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {

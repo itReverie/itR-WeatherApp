@@ -6,7 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_detail_activity">Detail Weather</string>
 
-    <string name="action_refresh">Refresh</string>
+    <string name="action_mobileservice">Mobile Service</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="pref_location_label">Location</string>
     <string name="pref_location_key" translatable="false">location</string>
