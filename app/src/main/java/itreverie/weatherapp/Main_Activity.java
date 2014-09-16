@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+
 import itreverie.Processing.WeatherDataParser;
 
 
@@ -54,6 +55,7 @@ public class main_activity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_settings, menu);
+
         return  super.onCreateOptionsMenu(menu);
     }
 
@@ -160,13 +162,16 @@ public class main_activity extends Activity {
             sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());//where this is the context
             String locationDefault = sharedPref.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
 
+            sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());//where this is the context
+            String temperatureUnitsDefault = sharedPref.getString(getString(R.string.pref_temperature_key), getString(R.string.pref_temperature_default));
+
             //1851632
             //2172797
             //GETTING THE INFORMATION FROM THE BACK END
             weatherTask= new FetchWeatherTask();
             listResultWeather = new String[0];
             try {
-                listResultWeather = weatherTask.execute(locationDefault).get();
+                listResultWeather = weatherTask.execute(locationDefault, temperatureUnitsDefault ).get();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -230,7 +235,7 @@ public class main_activity extends Activity {
 
                 String param_query = params[0].toString();
                 String param_format = "json";// params[1].toString();
-                String param_units = "metric";// params[2].toString();
+                String param_units = params[1].toString();//"metric";// params[2].toString();
                 int param_numdays = 10;// params[3].toString();
 
                 try {

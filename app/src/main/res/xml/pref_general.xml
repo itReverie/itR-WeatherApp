@@ -1,5 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory
+        android:title="General Settings" />
+
     <EditTextPreference
         android:key="@string/pref_location_key"
         android:title="@string/pref_location_label"

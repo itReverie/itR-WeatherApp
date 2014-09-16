@@ -7,15 +7,17 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+
         <activity
             android:name=".main_activity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".detail_activity"
             android:label="@string/title_activity_detail_activity"
@@ -23,13 +25,13 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="itreverie.weatherapp.Main_Activity" />
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
         <activity
             android:name=".settings_activity"
             android:label="@string/title_activity_settings_activity"
