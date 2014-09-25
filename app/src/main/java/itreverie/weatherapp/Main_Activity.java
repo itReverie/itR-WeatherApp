@@ -31,8 +31,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-
 
 import itreverie.Processing.WeatherDataParser;
 
@@ -55,7 +55,7 @@ public class main_activity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_settings, menu);
-
+        getMenuInflater().inflate(R.menu.map_location, menu);
         return  super.onCreateOptionsMenu(menu);
     }
 
@@ -69,18 +69,24 @@ public class main_activity extends Activity {
             startActivity(new Intent(this,settings_activity.class));
             return true;
         }
+        if (id == R.id.action_map_location) {
+            CreateGeoIntent();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-
-
-
-
-
-
+    private void CreateGeoIntent()
+    {
+        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+        String location=sharedPref.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        String geoLocation = String.format(Locale.ENGLISH, "geo:0,0?q=" + location);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(geoLocation));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -98,57 +104,27 @@ public class main_activity extends Activity {
         public Main_Fragment() {
         }
 
-
-
-        //EXTRA BUTTON "REFRESH"
+        //EXTRA BUTTONS IN THE MENU
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setHasOptionsMenu(true);
+            //setHasOptionsMenu(true);
         }
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             //super.onCreateOptionsMenu(menu, inflater);
-            inflater.inflate(R.menu.mobileservice, menu);
+            //inflater.inflate(R.menu.mobileservice, menu);
         }
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if(id == R.id.action_mobileservice)
-            {
-                CallAzureMobileService();
-                return true;
-            }
+            //int id = item.getItemId();
+            //if(id == R.id.action_mobileservice)
+            //{
+                //CallAzureMobileService();
+                //return true;
+            //}
             return super.onOptionsItemSelected(item);
         }
-        public void CallAzureMobileService()
-        {
-            /*
-            try {
-                mClient = new MobileServiceClient(Constants.MOBILE_SERVICE_URL_JS,
-                        Constants.MOBILE_SERVICE_APPLICATION_KEY_JS, this);
-
-                dk.com.unaaplicacion.Distance distance = new dk.com.unaaplicacion.Distance();
-                distance.Name="100";
-                distance.Unit = "mts";
-
-                mClient.getTable(dk.com.unaaplicacion.Distance.class).insert(distance, new TableOperationCallback<dk.com.unaaplicacion.Distance>() {
-                    public void onCompleted(dk.com.unaaplicacion.Distance entity, Exception exception, ServiceFilterResponse response) {
-                        if (exception == null) {
-                            Log.v(LOG_TAG, "BUILD URI " + "SUCCESSFULL ");
-                        } else {
-                            String msg = exception.getCause().getMessage();
-                            Log.v(LOG_TAG, "FAIL "+msg);
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.v(LOG_TAG, "BUILD URI " + e.getMessage());
-            }
-            */
-        }
-
 
 
 
@@ -156,9 +132,7 @@ public class main_activity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            //View rootView = inflater.inflate(R.layout.main_fragment, container, false);
-            //return rootView;
-
+            //GETTING THE DEFAULT VALUES FROM THE PREFERENCES
             sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());//where this is the context
             String locationDefault = sharedPref.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
 
@@ -178,14 +152,12 @@ public class main_activity extends Activity {
                 e.printStackTrace();
             }
 
-
-            //SETTING THE INFORMATION FOR THE ITEM DETAILS
+            //SETTING THE INFORMATION FOR THE ITEM DETAILS IN THE VIEW
             View rootView = inflater.inflate(R.layout.main_fragment, container, false);
             listStringForecast = new ArrayList<String>(Arrays.asList(listResultWeather));
             arrayAdapterForecast = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, listStringForecast);
             listView= ((ListView) rootView.findViewById(R.id.list_view_forecast));
             listView.setAdapter(arrayAdapterForecast);
-
 
             //Adding the listener to CLICK IN THE ITEM
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -203,8 +175,6 @@ public class main_activity extends Activity {
                     //toast.show();
                 }
             });
-
-
             return rootView;
         }
 
@@ -214,7 +184,6 @@ public class main_activity extends Activity {
         public class FetchWeatherTask extends AsyncTask<String, Void, String[]>
         {
             private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
-
 
             @Override
             protected String[] doInBackground(String... params) {
