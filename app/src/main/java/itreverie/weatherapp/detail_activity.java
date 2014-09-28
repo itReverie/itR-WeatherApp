@@ -1,10 +1,10 @@
 package itreverie.weatherapp;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,14 +20,14 @@ import android.widget.TextView;
 
 
 
-public class detail_activity extends Activity {
+public class detail_activity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_activity);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new Detail_Fragment())
                     .commit();
         }
@@ -68,6 +68,12 @@ public class detail_activity extends Activity {
         }
 
         @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
 
@@ -91,10 +97,14 @@ public class detail_activity extends Activity {
         @Override
         public void onCreateOptionsMenu(Menu menu,MenuInflater inflater)
         {
-            inflater.inflate(R.menu.detail_share,menu);
+            inflater.inflate(R.menu.share,menu);
 
-            MenuItem menuItem= menu.findItem(R.id.detail_action_share);
+            MenuItem menuItem= menu.findItem(R.id.action_share);
+
+            //ShareActionProvider mShareActionProvider =menuItem.getActionProvider();
+
             ShareActionProvider mShareActionProvider=(ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
             if(mShareActionProvider != null)
             {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());

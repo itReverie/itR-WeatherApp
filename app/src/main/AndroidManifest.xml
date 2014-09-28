@@ -19,6 +19,7 @@
         <activity
             android:name=".detail_activity"
             android:label="@string/title_activity_detail_activity"
+            android:theme="@style/Theme.AppCompat.Light"
             android:parentActivityName=".main_activity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
