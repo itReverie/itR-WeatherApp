@@ -1,4 +1,4 @@
-package itreverie.Processing;
+package itreverie.processing;
 
 import android.util.Log;
 

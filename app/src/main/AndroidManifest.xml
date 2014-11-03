@@ -38,6 +38,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="itreverie.weatherapp.main_activity" />
         </activity>
+        <provider
+                android:authorities="itreverie.weatherapp"
+                android:name=".data.WeatherProvider"></provider>
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"

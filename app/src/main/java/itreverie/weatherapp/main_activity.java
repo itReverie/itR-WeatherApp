@@ -34,20 +34,58 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import itreverie.Processing.WeatherDataParser;
+import itreverie.processing.WeatherDataParser;
 
 
 public class main_activity extends Activity {
 
+    private final String LOG_TAG = main_activity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(LOG_TAG, "onCreate");
         setContentView(R.layout.main_activity);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.mainContainer, new Main_Fragment())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Log.v(LOG_TAG, "onStart");
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        Log.v(LOG_TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        Log.v(LOG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        Log.v(LOG_TAG, "onStop");
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        Log.v(LOG_TAG, "onDestroy");
     }
 
 
