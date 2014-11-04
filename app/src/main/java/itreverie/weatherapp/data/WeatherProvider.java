@@ -67,6 +67,44 @@ public class WeatherProvider extends ContentProvider {
     }
 
 
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        final SQLiteDatabase db= mOpenHelper.getWritableDatabase();
+
+        //WeatherDbHelper dbHelper = new WeatherDbHelper(getContext());
+        //SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        final int match =sUriMatcher.match(uri);
+        Uri returnUri= null;
+
+        switch (match) {
+            case WEATHER: {
+                long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case LOCATION: {
+                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        //This line is to notify listeners about changes
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
+    }
+
 
     //Important step with also de Manifest to connect the Content Provider with our db_helper
     @Override
@@ -150,40 +188,6 @@ public class WeatherProvider extends ContentProvider {
         //This causes our cursor to register to our content observer to watch the changes that happen to that URI and any of its descendants
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        final SQLiteDatabase db= mOpenHelper.getWritableDatabase();
-        final int match=sUriMatcher.match(uri);
-        Uri returnUri= null;
-
-        switch (match) {
-            case WEATHER: {
-                long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
-            case LOCATION: {
-                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
-            default: {
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-            }
-        }
-
-        //This line is to notify listeners about changes
-        getContext().getContentResolver().notifyChange(uri, null);
-
-        return returnUri;
     }
 
     @Override
