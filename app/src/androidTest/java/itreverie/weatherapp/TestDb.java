@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.test.ApplicationTestCase;
-import android.util.Log;
 
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +42,7 @@ public class TestDb extends ApplicationTestCase<Application> {
         super(Application.class);
     }
 
+
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
         SQLiteDatabase db = new WeatherDbHelper(
@@ -51,6 +51,7 @@ public class TestDb extends ApplicationTestCase<Application> {
         db.close();
     }
 
+    /*
     public void testInsertReadDb() {
 
         // If there's an error in those massive SQL table creation Strings,
@@ -129,8 +130,7 @@ public class TestDb extends ApplicationTestCase<Application> {
 
         dbHelper.close();
     }
-
-
+    */
 
 
     static ContentValues createNorthPoleLocationValues() {

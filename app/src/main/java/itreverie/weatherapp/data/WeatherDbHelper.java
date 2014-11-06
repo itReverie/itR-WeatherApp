@@ -25,12 +25,12 @@ public class WeatherDbHelper extends SQLiteOpenHelper{
 
 
         final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE " + WeatherContract.LocationEntry.TABLE_NAME + " (" +
-                WeatherContract.LocationEntry._ID + " INTEGER PRIMARY KEY," +
+                WeatherContract.LocationEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " TEXT UNIQUE NOT NULL, " +
-                WeatherContract.LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
+                WeatherContract.LocationEntry.COLUMN_CITY_NAME + " TEXT UNIQUE  NOT NULL, " +
                 WeatherContract.LocationEntry.COLUMN_CORD_LATITUDE + " REAL NOT NULL, " +
                 WeatherContract.LocationEntry.COLUMN_CORD_LONGITUDE + " REAL NOT NULL," +
-                " UNIQUE (" + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + ") ON CONFLICT IGNORE"+ " );";
+                " UNIQUE (" + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS +    ") ON CONFLICT IGNORE"+ " );";
 
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherContract.WeatherEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
@@ -42,7 +42,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper{
 
                 // the ID of the location entry associated with this weather data
                 WeatherContract.WeatherEntry.COLUMN_LOC_KEY + " INTEGER NOT NULL, " +
-                WeatherContract.WeatherEntry.COLUMN_DATETEXT + " TEXT NOT NULL, " +
+                WeatherContract.WeatherEntry.COLUMN_DATETEXT + " TEXT UNIQUE NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, " +
                 WeatherContract.WeatherEntry.COLUMN_WEATHER_ID + " INTEGER NOT NULL," +
 
@@ -55,13 +55,11 @@ public class WeatherDbHelper extends SQLiteOpenHelper{
                 WeatherContract.WeatherEntry.COLUMN_DEGREES + " REAL NOT NULL, " +
 
                 // Set up the location column as a foreign key to location table.
-                " FOREIGN KEY (" + WeatherContract.WeatherEntry.COLUMN_LOC_KEY + ") REFERENCES " +
-                WeatherContract.LocationEntry.TABLE_NAME + " (" + WeatherContract.LocationEntry._ID + "), " +
+                " FOREIGN KEY (" + WeatherContract.WeatherEntry.COLUMN_LOC_KEY + ") REFERENCES " + WeatherContract.LocationEntry.TABLE_NAME + " (" + WeatherContract.LocationEntry._ID + "), " +
 
                 // To assure the application have just one weather entry per day
                 // per location, it's created a UNIQUE constraint with REPLACE strategy
-                " UNIQUE (" + WeatherContract.WeatherEntry.COLUMN_DATETEXT + ", " +
-                WeatherContract.WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";
+                " UNIQUE (" + WeatherContract.WeatherEntry.COLUMN_DATETEXT + ", " + WeatherContract.WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_LOCATION_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);

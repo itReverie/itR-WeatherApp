@@ -80,6 +80,23 @@ public class WeatherProvider extends ContentProvider {
         switch (match) {
             case WEATHER: {
                 long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
+                if(_id==-1)
+                {
+                    Cursor cursorWeather = db.query(
+                            WeatherContract.WeatherEntry.TABLE_NAME,
+                            new String[]{"_id"},
+                            WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ?",
+                            new String[]{values.getAsString(WeatherContract.WeatherEntry.COLUMN_DATETEXT)},
+                            null,
+                            null,
+                            null);
+
+                    if (cursorWeather.moveToFirst()) {
+                        _id = cursorWeather.getLong(0);
+                    }
+
+                    cursorWeather.close();
+                }
                 if ( _id > 0 )
                     returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
                 else
@@ -88,6 +105,23 @@ public class WeatherProvider extends ContentProvider {
             }
             case LOCATION: {
                 long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+                if(_id==-1)
+                {
+                    Cursor cursor = db.query(
+                            WeatherContract.LocationEntry.TABLE_NAME,
+                            new String[]{"_id"},
+                            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ?",
+                            new String[]{values.getAsString(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS)},
+                            null,
+                            null,
+                            null);
+
+                    if (cursor.moveToFirst()) {
+                        _id = cursor.getLong(0);
+                    }
+
+                    cursor.close();
+                }
                 if ( _id > 0 )
                     returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
                 else
