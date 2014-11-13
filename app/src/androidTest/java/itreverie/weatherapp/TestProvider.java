@@ -186,8 +186,9 @@ public class TestProvider extends ApplicationTestCase{
                 null // sort order
         );
 
-        TestDb.validateCursor(cursor, updatedValues);
-
+        if(cursor.moveToFirst()) {
+            TestDb.validateCursor(cursor, updatedValues);
+        }
 
     }
 

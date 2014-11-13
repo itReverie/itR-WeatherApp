@@ -28,7 +28,6 @@ public class WeatherProvider extends ContentProvider {
 
 
 
-
     //URIMatcher to associate the data content with the UI ids
     private static UriMatcher buildUriMatcher()
     {
@@ -65,80 +64,6 @@ public class WeatherProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri" + uri);
         }
     }
-
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        final SQLiteDatabase db= mOpenHelper.getWritableDatabase();
-
-        //WeatherDbHelper dbHelper = new WeatherDbHelper(getContext());
-        //SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        final int match =sUriMatcher.match(uri);
-        Uri returnUri= null;
-
-        switch (match) {
-            case WEATHER: {
-                long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
-                if(_id==-1)
-                {
-                    Cursor cursorWeather = db.query(
-                            WeatherContract.WeatherEntry.TABLE_NAME,
-                            new String[]{"_id"},
-                            WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ?",
-                            new String[]{values.getAsString(WeatherContract.WeatherEntry.COLUMN_DATETEXT)},
-                            null,
-                            null,
-                            null);
-
-                    if (cursorWeather.moveToFirst()) {
-                        _id = cursorWeather.getLong(0);
-                    }
-
-                    cursorWeather.close();
-                }
-                if ( _id > 0 )
-                    returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
-            case LOCATION: {
-                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
-                if(_id==-1)
-                {
-                    Cursor cursor = db.query(
-                            WeatherContract.LocationEntry.TABLE_NAME,
-                            new String[]{"_id"},
-                            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ?",
-                            new String[]{values.getAsString(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS)},
-                            null,
-                            null,
-                            null);
-
-                    if (cursor.moveToFirst()) {
-                        _id = cursor.getLong(0);
-                    }
-
-                    cursor.close();
-                }
-                if ( _id > 0 )
-                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
-            default: {
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-            }
-        }
-
-        //This line is to notify listeners about changes
-        getContext().getContentResolver().notifyChange(uri, null);
-
-        return returnUri;
-    }
-
 
     //Important step with also de Manifest to connect the Content Provider with our db_helper
     @Override
@@ -249,6 +174,78 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        final SQLiteDatabase db= mOpenHelper.getWritableDatabase();
+
+        //WeatherDbHelper dbHelper = new WeatherDbHelper(getContext());
+        //SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        final int match =sUriMatcher.match(uri);
+        Uri returnUri= null;
+
+        switch (match) {
+            case WEATHER: {
+                long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
+                if(_id==-1)
+                {
+                    Cursor cursorWeather = db.query(
+                            WeatherContract.WeatherEntry.TABLE_NAME,
+                            new String[]{"_id"},
+                            WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ?",
+                            new String[]{values.getAsString(WeatherContract.WeatherEntry.COLUMN_DATETEXT)},
+                            null,
+                            null,
+                            null);
+
+                    if (cursorWeather.moveToFirst()) {
+                        _id = cursorWeather.getLong(0);
+                    }
+
+                    cursorWeather.close();
+                }
+                if ( _id > 0 )
+                    returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case LOCATION: {
+                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+                if(_id==-1)
+                {
+                    Cursor cursor = db.query(
+                            WeatherContract.LocationEntry.TABLE_NAME,
+                            new String[]{"_id"},
+                            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ?",
+                            new String[]{values.getAsString(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS)},
+                            null,
+                            null,
+                            null);
+
+                    if (cursor.moveToFirst()) {
+                        _id = cursor.getLong(0);
+                    }
+
+                    cursor.close();
+                }
+                if ( _id > 0 )
+                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        //This line is to notify listeners about changes
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
+    }
+
+    @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
@@ -272,7 +269,31 @@ public class WeatherProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case WEATHER:
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+    }
 
 
 
