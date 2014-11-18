@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,7 @@ public class main_activity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_settings, menu);
         getMenuInflater().inflate(R.menu.map_location, menu);
-        return  super.onCreateOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -128,12 +129,12 @@ public class main_activity extends ActionBarActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            //setHasOptionsMenu(true);
+            setHasOptionsMenu(true);
         }
-        /*
+
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            inflater.inflate(R.menu.forecastfragment, menu);
+            inflater.inflate(R.menu.refresh, menu);
         }
 
         @Override
@@ -148,7 +149,7 @@ public class main_activity extends ActionBarActivity {
             }
             return super.onOptionsItemSelected(item);
         }
-        */
+
 
 
         //LIST ITEMS IN THE MAIN LAYOUT
@@ -207,9 +208,24 @@ public class main_activity extends ActionBarActivity {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent intent = new Intent(getActivity(), detail_activity.class)
-                            .putExtra(Intent.EXTRA_TEXT, "placeholder");
-                    startActivity(intent);
+                    Cursor cursor = mForecastAdapter.getCursor();
+                    if (cursor != null && cursor.moveToPosition(position)) {
+                        String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
+                        String weatherDescription = cursor.getString(COL_WEATHER_DESC);
+
+                        boolean isMetric = Utility.isMetric(getActivity());
+                        String high = Utility.formatTemperature(
+                                cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
+                        String low = Utility.formatTemperature(
+                                cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
+
+                        String detailString = String.format("%s - %s - %s/%s",
+                                dateString, weatherDescription, high, low);
+
+                        Intent intent = new Intent(getActivity(), detail_activity.class)
+                                .putExtra(Intent.EXTRA_TEXT, detailString);
+                        startActivity(intent);
+                    }
                 }
             });
             return rootView;
@@ -227,9 +243,12 @@ public class main_activity extends ActionBarActivity {
         }
 
         @Override
-        public void onStart() {
-            super.onStart();
-            updateWeather();
+        public void onResume() {
+            super.onResume();
+            String preferedLocation=Utility.getPreferredLocation(getActivity());
+            if (mLocation != null && !mLocation.equals(preferedLocation)) {
+                getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+            }
         }
 
         @Override

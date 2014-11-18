@@ -20,7 +20,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -53,12 +52,6 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         mContext = context;
     }
 
-    /*
-    public FetchWeatherTask(Context context, ArrayAdapter<String> forecastAdapter) {
-        mContext = context;
-        mForecastAdapter = forecastAdapter;
-    }
-    */
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
      * so for convenience we're breaking it out into its own method now.
@@ -86,7 +79,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 mContext.getString(R.string.pref_temperature_key),
                 mContext.getString(R.string.pref_temperature_default));//pref_units_key ----   pref_units_metric
 
-        if (unitType.equals(mContext.getString(R.string.pref_units_imperial))) //pref_units_imperial
+        if (unitType.equals(mContext.getString(R.string.pref_temperature_default))) //pref_units_imperial
         {
             high = (high * 1.8) + 32;
             low = (low * 1.8) + 32;
@@ -158,8 +151,6 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         // Get and insert the new weather information into the database
         Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
 
-        //String[] resultStrs = new String[numDays];
-
         for(int i = 0; i < weatherArray.length(); i++) {
             // These are the values that will be collected.
 
@@ -216,19 +207,18 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
             cVVector.add(weatherValues);
 
-            String highAndLow = formatHighLows(high, low);
-            String day = getReadableDateString(dateTime);
-            //resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
         if (cVVector.size() > 0) {
             //Converting a vector into an array
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            int rowsInserted = mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
-            Log.v(LOG_TAG, "inserted " + rowsInserted + " rows of weather data");
+            mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+            //int rowsInserted =
+            //        Log.v(LOG_TAG, "inserted " + rowsInserted + " rows of weather data");
             // Use a DEBUG variable to gate whether or not you do this, so you can easily
             // turn it on and off, and so that it's easy to see what you can rip out if
             // you ever want to remove it.
+            /*
             if (DEBUG) {
                 Cursor weatherCursor = mContext.getContentResolver().query(
                         WeatherContract.WeatherEntry.CONTENT_URI,
@@ -249,8 +239,8 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                     Log.v(LOG_TAG, "Query failed! :( **********");
                 }
             }
+            */
         }
-       // return resultStrs;
     }
 
     /**
@@ -389,19 +379,6 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         // This will only happen if there was an error getting or parsing the forecast.
         return null;
     }
-
-    /*
-    @Override
-    protected void onPostExecute(String[] result) {
-        if (result != null) {
-            mForecastAdapter.clear();
-            for(String dayForecastStr : result) {
-                mForecastAdapter.add(dayForecastStr);
-            }
-            // New data is back from the server.  Hooray!
-        }
-    }
-    */
 }
 
 
