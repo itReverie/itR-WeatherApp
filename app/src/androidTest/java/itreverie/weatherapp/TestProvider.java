@@ -1,7 +1,6 @@
 package itreverie.weatherapp;
 
 import android.annotation.TargetApi;
-import android.app.Application;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -11,21 +10,54 @@ import android.test.ApplicationTestCase;
 import android.util.Log;
 
 import itreverie.weatherapp.data.WeatherContract;
-import itreverie.weatherapp.data.WeatherDbHelper;
 
 
 public class TestProvider extends ApplicationTestCase{
 
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
-    static public String TEST_LOCATION="99705";
-    static public String TEST_DATE="20141205";
 
-    public TestProvider() {
-        super(Application.class);
+    public TestProvider(Class applicationClass) {
+        super(applicationClass);
     }
 
-    public void testDeleteDb() throws Throwable {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    // brings our database to an empty state
+    public void deleteAllRecords() {
+        mContext.getContentResolver().delete(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null
+        );
+        mContext.getContentResolver().delete(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+    }
+
+    // Since we want each test to start with a clean slate, run deleteAllRecords
+    // in setUp (called by the test runner before each test).
+    public void setUp() {
+        deleteAllRecords();
     }
 
     public void testInsertReadProvider() {
@@ -88,7 +120,7 @@ public class TestProvider extends ApplicationTestCase{
 
         // Get the joined Weather and Location data
         weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.buildWeatherLocation(TEST_LOCATION),
+                WeatherContract.WeatherEntry.buildWeatherLocation(TestDb.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
@@ -99,7 +131,7 @@ public class TestProvider extends ApplicationTestCase{
         // Get the joined Weather and Location data with a start date
         weatherCursor = mContext.getContentResolver().query(
                 WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                        TEST_LOCATION, TEST_DATE),
+                        TestDb.TEST_LOCATION, TestDb.TEST_DATE),
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
@@ -107,52 +139,46 @@ public class TestProvider extends ApplicationTestCase{
         );
         TestDb.validateCursor(weatherCursor, weatherValues);
 
-
         // Get the joined Weather data for a specific date
         weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(TEST_LOCATION, TEST_DATE),
+                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(TestDb.TEST_LOCATION, TestDb.TEST_DATE),
                 null,
                 null,
                 null,
                 null
         );
         TestDb.validateCursor(weatherCursor, weatherValues);
-
-
     }
 
-    // brings our database to an empty state
-    public void deleteAllRecords() {
-        mContext.getContentResolver().delete(
-                WeatherContract.WeatherEntry.CONTENT_URI,
-                null,
-                null
-        );
-        mContext.getContentResolver().delete(
-                WeatherContract.LocationEntry.CONTENT_URI,
-                null,
-                null
-        );
+    public void testGetType() {
+        // content://com.example.android.sunshine.app/weather/
+        String type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
 
-        Cursor cursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-        assertEquals(0, cursor.getCount());
-        cursor.close();
+        String testLocation = "94074";
+        // content://com.example.android.sunshine.app/weather/94074
+        type = mContext.getContentResolver().getType(
+                WeatherContract.WeatherEntry.buildWeatherLocation(testLocation));
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
 
-        cursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-        assertEquals(0, cursor.getCount());
-        cursor.close();
+        String testDate = "20140612";
+        // content://com.example.android.sunshine.app/weather/94074/20140612
+        type = mContext.getContentResolver().getType(
+                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
+        // vnd.android.cursor.item/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE, type);
+
+        // content://com.example.android.sunshine.app/location/
+        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/location
+        assertEquals(WeatherContract.LocationEntry.CONTENT_TYPE, type);
+
+        // content://com.example.android.sunshine.app/location/1
+        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.buildLocationUri(1L));
+        // vnd.android.cursor.item/com.example.android.sunshine.app/location
+        assertEquals(WeatherContract.LocationEntry.CONTENT_ITEM_TYPE, type);
     }
 
     public void testUpdateLocation() {
@@ -186,10 +212,7 @@ public class TestProvider extends ApplicationTestCase{
                 null // sort order
         );
 
-        if(cursor.moveToFirst()) {
-            TestDb.validateCursor(cursor, updatedValues);
-        }
-
+        TestDb.validateCursor(cursor, updatedValues);
     }
 
     // Make sure we can still delete after adding/updating stuff
@@ -197,42 +220,6 @@ public class TestProvider extends ApplicationTestCase{
         deleteAllRecords();
     }
 
-    // Since we want each test to start with a clean slate, run deleteAllRecords
-    // in setUp (called by the test runner before each test).
-    //public void setUp() {
-        //deleteAllRecords();
-    //}
-
-    public void testGetType() {
-        // content://com.example.android.sunshine.app/weather/
-        String type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.CONTENT_URI);
-        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
-
-        String testLocation = "94074";
-        // content://com.example.android.sunshine.app/weather/94074
-        type = mContext.getContentResolver().getType(
-                WeatherContract.WeatherEntry.buildWeatherLocation(testLocation));
-        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
-
-        String testDate = "20140612";
-        // content://com.example.android.sunshine.app/weather/94074/20140612
-        type = mContext.getContentResolver().getType(
-                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
-        // vnd.android.cursor.item/com.example.android.sunshine.app/weather
-        assertEquals(WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE, type);
-
-        // content://com.example.android.sunshine.app/location/
-        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
-        // vnd.android.cursor.dir/com.example.android.sunshine.app/location
-        assertEquals(WeatherContract.LocationEntry.CONTENT_TYPE, type);
-
-        // content://com.example.android.sunshine.app/location/1
-        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.buildLocationUri(1L));
-        // vnd.android.cursor.item/com.example.android.sunshine.app/location
-        assertEquals(WeatherContract.LocationEntry.CONTENT_ITEM_TYPE, type);
-    }
 
     // The target api annotation is needed for the call to keySet -- we wouldn't want
     // to use this in our app, but in a test it's fine to assume a higher target.
@@ -241,5 +228,104 @@ public class TestProvider extends ApplicationTestCase{
         for (String key : source.keySet()) {
             destination.put(key, source.getAsString(key));
         }
+    }
+
+    static final String KALAMAZOO_LOCATION_SETTING = "kalamazoo";
+    static final String KALAMAZOO_WEATHER_START_DATE = "20140625";
+
+    long locationRowId;
+
+    static ContentValues createKalamazooWeatherValues(long locationRowId) {
+        ContentValues weatherValues = new ContentValues();
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATETEXT, KALAMAZOO_WEATHER_START_DATE);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.2);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.5);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.1);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 85);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 35);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Cats and Dogs");
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 3.4);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 42);
+
+        return weatherValues;
+    }
+
+    static ContentValues createKalamazooLocationValues() {
+        // Create a new map of values, where column names are the keys
+        ContentValues testValues = new ContentValues();
+        testValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, KALAMAZOO_LOCATION_SETTING);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Kalamazoo");
+        testValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, 42.2917);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, -85.5872);
+
+        return testValues;
+    }
+
+
+    // Inserts both the location and weather data for the Kalamazoo data set.
+    public void insertKalamazooData() {
+        ContentValues kalamazooLocationValues = createKalamazooLocationValues();
+        Uri locationInsertUri = mContext.getContentResolver()
+                .insert(WeatherContract.LocationEntry.CONTENT_URI, kalamazooLocationValues);
+        assertTrue(locationInsertUri != null);
+
+        locationRowId = ContentUris.parseId(locationInsertUri);
+
+        ContentValues kalamazooWeatherValues = createKalamazooWeatherValues(locationRowId);
+        Uri weatherInsertUri = mContext.getContentResolver()
+                .insert(WeatherContract.WeatherEntry.CONTENT_URI, kalamazooWeatherValues);
+        assertTrue(weatherInsertUri != null);
+    }
+
+    public void testUpdateAndReadWeather() {
+        insertKalamazooData();
+        String newDescription = "Cats and Frogs (don't warn the tadpoles!)";
+
+        // Make an update to one value.
+        ContentValues kalamazooUpdate = new ContentValues();
+        kalamazooUpdate.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, newDescription);
+
+        mContext.getContentResolver().update(
+                WeatherContract.WeatherEntry.CONTENT_URI, kalamazooUpdate, null, null);
+
+        // A cursor is your primary interface to the query results.
+        Cursor weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make the same update to the full ContentValues for comparison.
+        ContentValues kalamazooAltered = createKalamazooWeatherValues(locationRowId);
+        kalamazooAltered.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, newDescription);
+
+        TestDb.validateCursor(weatherCursor, kalamazooAltered);
+    }
+
+    public void testRemoveHumidityAndReadWeather() {
+        insertKalamazooData();
+
+        mContext.getContentResolver().delete(WeatherContract.WeatherEntry.CONTENT_URI,
+                WeatherContract.WeatherEntry.COLUMN_HUMIDITY + " = " + locationRowId, null);
+
+        // A cursor is your primary interface to the query results.
+        Cursor weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make the same update to the full ContentValues for comparison.
+        ContentValues kalamazooAltered = createKalamazooWeatherValues(locationRowId);
+        kalamazooAltered.remove(WeatherContract.WeatherEntry.COLUMN_HUMIDITY);
+
+        TestDb.validateCursor(weatherCursor, kalamazooAltered);
+        int idx = weatherCursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_HUMIDITY);
+        assertEquals(-1, idx);
     }
 }

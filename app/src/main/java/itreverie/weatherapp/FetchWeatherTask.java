@@ -260,7 +260,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         Cursor cursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[]{WeatherContract.LocationEntry._ID},
-                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ?",
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
                 new String[]{locationSetting},
                 null);
 
@@ -271,10 +271,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         } else {
             Log.v(LOG_TAG, "Didn't find it in the database, inserting now!");
             ContentValues locationValues = new ContentValues();
-            locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS, locationSetting);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
-            locationValues.put(WeatherContract.LocationEntry.COLUMN_CORD_LATITUDE, lat);
-            locationValues.put(WeatherContract.LocationEntry.COLUMN_CORD_LONGITUDE, lon);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
             Uri locationInsertUri = mContext.getContentResolver()
                     .insert(WeatherContract.LocationEntry.CONTENT_URI, locationValues);

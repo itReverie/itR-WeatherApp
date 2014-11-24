@@ -11,7 +11,6 @@ import android.test.ApplicationTestCase;
 import java.util.Map;
 import java.util.Set;
 
-import itreverie.processing.WeatherDataParser;
 import itreverie.weatherapp.data.WeatherContract;
 import itreverie.weatherapp.data.WeatherDbHelper;
 
@@ -22,7 +21,7 @@ import itreverie.weatherapp.data.WeatherDbHelper;
 
 public class TestDb extends ApplicationTestCase<Application> {
 
-    private static final String LOG_TAG = WeatherDataParser.class.getSimpleName();
+    //private static final String LOG_TAG = itreverie.processing.WeatherDataParser.class.getSimpleName();
 
     //static public String TEST_CITY_NAME="North Pole";
     static public String TEST_LOCATION="99705";
@@ -136,10 +135,10 @@ public class TestDb extends ApplicationTestCase<Application> {
     static ContentValues createNorthPoleLocationValues() {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
-        testValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS, "99705");
+        testValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, "99705");
         testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "North Pole");
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CORD_LATITUDE, 64.7488);
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CORD_LONGITUDE, -147.353);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, 64.7488);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, -147.353);
 
         return testValues;
     }

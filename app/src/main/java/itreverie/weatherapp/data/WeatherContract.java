@@ -10,22 +10,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by Brenda on 10/2/2014.
+ * Defines table and column names for the weather database.
  */
 public class WeatherContract {
 
+    // The "Content authority" is a name for the entire content provider, similar to the
+    // relationship between a domain name and its website.  A convenient string to use for the
+    // content authority is the package name for the app, which is guaranteed to be unique on the
+    // device.
+    public static final String CONTENT_AUTHORITY = "itreverie.weatherapp";
 
-    //CONTENT_AUTHORITY is advisable to be the name of the package
-    public  static final String CONTENT_AUTHORITY= "itreverie.weatherapp";
-    public  static final String PATH_WEATHER= "weather";
-    public  static final String PATH_LOCATION= "location";
+    // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
+    // the content provider.
+    // the content provider.
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    // Possible paths (appended to base content URI for possible URI's)
+    // For instance, content://itreverie.weatherapp/weather/ is a valid path for
+    // looking at weather data. content://itreverie.weatherapp/givemeroot/ will fail,
+    // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
+    // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
+    public static final String PATH_WEATHER = "weather";
+    public static final String PATH_LOCATION = "location";
+
     // Format used for storing dates in the database.  ALso used for converting those strings
     // back into date objects for comparison/processing.
     public static final String DATE_FORMAT = "yyyyMMdd";
-
-    //BASE_CONTENT_URI is the BASE of all Uri's which apps will use to contact the content provider
-    public  static final Uri BASE_CONTENT_URI= Uri.parse("content://"+CONTENT_AUTHORITY);
-
 
     /**
      * Converts Date class to a string representation, used for easy comparison and database lookup.
@@ -54,37 +64,51 @@ public class WeatherContract {
         }
     }
 
+    /* Inner class that defines the table contents of the location table */
+    public static final class LocationEntry implements BaseColumns {
 
-    /* Inner class that defines the table contents of the weather table
-    *
-    * CREATE TABLE weather( _id INTEGER PRIMARY KEY,
-    *                       date TEXT NOT NULL,
-    *                       min REAL NOT NULL,
-    *                       max REAL NOT NULL,
-    *                       humidity REAL NOT NULL,
-    *                       pressure REAL NOT NULL);
-    *
-    * */
-    public static final class WeatherEntry implements BaseColumns {
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
 
-        //BASE URI
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
-        //Adding the Content Provider to our Contract - add URI builders and decoders for WeatherEntry
-        public static Uri buildWeatherUri(long id) {
+        public static final String CONTENT_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+
+        // Table name
+        public static final String TABLE_NAME = "location";
+
+        // The location setting string is what will be sent to openweathermap
+        // as the location query.
+        public static final String COLUMN_LOCATION_SETTING = "location_setting";
+
+        // Human readable location string, provided by the API.  Because for styling,
+        // "Mountain View" is more recognizable than 94043.
+        public static final String COLUMN_CITY_NAME = "city_name";
+
+        // In order to uniquely pinpoint the location on the map when we launch the
+        // map intent, we store the latitude and longitude as returned by openweathermap.
+        public static final String COLUMN_COORD_LAT = "coord_lat";
+        public static final String COLUMN_COORD_LONG = "coord_long";
+
+        public static Uri buildLocationUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+    }
 
+    /* Inner class that defines the table contents of the weather table */
+    public static final class WeatherEntry implements BaseColumns {
 
-        //These are the types used in our content provider
-        //The specific namespace is used to identify the type to be returned
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" +      PATH_WEATHER;
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
 
+        public static final String CONTENT_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
 
-
-
-        //TABLE NAMES AND COLUMNS
         public static final String TABLE_NAME = "weather";
+
         // Column with the foreign key into the location table.
         public static final String COLUMN_LOC_KEY = "location_id";
         // Date, stored as Text with format yyyy-MM-dd
@@ -113,65 +137,34 @@ public class WeatherContract {
         public static final String COLUMN_DEGREES = "degrees";
 
 
+        public static Uri buildWeatherUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
-
-
-
-        //LOCATION
         public static Uri buildWeatherLocation(String locationSetting) {
             return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
         }
 
-        //These are helper functions to decode Uri structure in this way we keep all the uri's in one place (the contract)
-        public static String getLocationSettingFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
-
-        //DATE
-        public static Uri buildWeatherLocationWithDate(String locationSetting, String date) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).appendPath(date).build();
-        }
-        public static String getDateFromUri(Uri uri) {
-            return uri.getPathSegments().get(2);
-        }
-
-
-        //START DATE
         public static Uri buildWeatherLocationWithStartDate(
                 String locationSetting, String startDate) {
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
                     .appendQueryParameter(COLUMN_DATETEXT, startDate).build();
         }
+
+        public static Uri buildWeatherLocationWithDate(String locationSetting, String date) {
+            return CONTENT_URI.buildUpon().appendPath(locationSetting).appendPath(date).build();
+        }
+
+        public static String getLocationSettingFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
+        public static String getDateFromUri(Uri uri) {
+            return uri.getPathSegments().get(2);
+        }
+
         public static String getStartDateFromUri(Uri uri) {
             return uri.getQueryParameter(COLUMN_DATETEXT);
         }
     }
-
-
-
-
-
-    public static final class LocationEntry implements BaseColumns{
-
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
-        //Adding the Content Provider to our Contract - add URI builders and decoders for WeatherEntry
-        public static Uri buildLocationUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        //These are the MIMETYPES used in our content provider
-        public static final String CONTENT_TYPE ="vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-
-
-        public static final String TABLE_NAME = "location";
-        public static final String COLUMN_LOCATION_SETTINGS = "location_settings";
-        public static final String COLUMN_CITY_NAME = "city_name";
-        public static final String COLUMN_CORD_LATITUDE =  "cord_latitude";
-        public static final String COLUMN_CORD_LONGITUDE = "cord_longitude";
-
-    }
 }
-
-

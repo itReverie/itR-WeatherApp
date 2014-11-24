@@ -18,6 +18,10 @@ import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import itreverie.weatherapp.data.WeatherContract;
+
+import static android.preference.Preference.OnPreferenceChangeListener;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -29,7 +33,8 @@ import android.view.MenuItem;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class settings_activity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
+public class settings_activity extends PreferenceActivity
+                                implements OnPreferenceChangeListener {
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -37,6 +42,7 @@ public class settings_activity extends PreferenceActivity implements Preference.
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
+    private static final boolean mBindingPreference= false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,8 @@ public class settings_activity extends PreferenceActivity implements Preference.
         super.onPostCreate(savedInstanceState);
 
         setupSimplePreferencesScreen();
+
+
     }
 
     /**
@@ -145,7 +153,7 @@ public class settings_activity extends PreferenceActivity implements Preference.
      * doesn't have an extra-large screen. In these cases, a single-pane
      * "simplified" settings UI should be shown.
      */
-    private static boolean isSimplePreferences(Context context) {
+    private boolean isSimplePreferences(Context context) {
         return ALWAYS_SIMPLE_PREFS
                 || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
                 || !isXLargeTablet(context);
@@ -156,10 +164,11 @@ public class settings_activity extends PreferenceActivity implements Preference.
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+
+    private OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new OnPreferenceChangeListener() {
         @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            String stringValue = newValue.toString();
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
@@ -199,16 +208,26 @@ public class settings_activity extends PreferenceActivity implements Preference.
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
+
+                // are we starting the preference activity?
+                if ( !mBindingPreference ) {
+                    if (preference.getKey().equals(getString(R.string.pref_location_key))) {
+                        FetchWeatherTask weatherTask = new FetchWeatherTask(preference.getContext());
+                        String location = newValue.toString();
+                        weatherTask.execute(location);
+                    } else {
+                        // notify code that weather may be impacted
+                        getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
+                    }
+                }
                 //bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+
+
+
             }
             return true;
         }
     };
-
-    @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        return false;
-    }
 
     /**
      * Binds a preference's summary to its value. More specifically, when the
@@ -235,5 +254,10 @@ public class settings_activity extends PreferenceActivity implements Preference.
         //bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         //bindPreferenceSummaryToValue(findPreference("pref_temperature"));
         //bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        return false;
     }
 }

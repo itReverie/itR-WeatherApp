@@ -175,34 +175,13 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        final SQLiteDatabase db= mOpenHelper.getWritableDatabase();
-
-        //WeatherDbHelper dbHelper = new WeatherDbHelper(getContext());
-        //SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        final int match =sUriMatcher.match(uri);
-        Uri returnUri= null;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
 
         switch (match) {
             case WEATHER: {
                 long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
-                if(_id==-1)
-                {
-                    Cursor cursorWeather = db.query(
-                            WeatherContract.WeatherEntry.TABLE_NAME,
-                            new String[]{"_id"},
-                            WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ?",
-                            new String[]{values.getAsString(WeatherContract.WeatherEntry.COLUMN_DATETEXT)},
-                            null,
-                            null,
-                            null);
-
-                    if (cursorWeather.moveToFirst()) {
-                        _id = cursorWeather.getLong(0);
-                    }
-
-                    cursorWeather.close();
-                }
                 if ( _id > 0 )
                     returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
                 else
@@ -211,37 +190,16 @@ public class WeatherProvider extends ContentProvider {
             }
             case LOCATION: {
                 long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
-                if(_id==-1)
-                {
-                    Cursor cursor = db.query(
-                            WeatherContract.LocationEntry.TABLE_NAME,
-                            new String[]{"_id"},
-                            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ?",
-                            new String[]{values.getAsString(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS)},
-                            null,
-                            null,
-                            null);
-
-                    if (cursor.moveToFirst()) {
-                        _id = cursor.getLong(0);
-                    }
-
-                    cursor.close();
-                }
                 if ( _id > 0 )
                     returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            default: {
+            default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
-            }
         }
-
-        //This line is to notify listeners about changes
         getContext().getContentResolver().notifyChange(uri, null);
-
         return returnUri;
     }
 
@@ -318,13 +276,13 @@ public class WeatherProvider extends ContentProvider {
     }
 
     //Selection statement for weather based on the location
-    private static final String sLocationSettingSelection = WeatherContract.LocationEntry.TABLE_NAME+ "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ? ";
+    private static final String sLocationSettingSelection = WeatherContract.LocationEntry.TABLE_NAME+ "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? ";
 
 
     //Selection statement for weather based on the location and date
-    private static final String sLocationSettingWithStartDateSelection = WeatherContract.LocationEntry.TABLE_NAME+ "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ? AND " + WeatherContract.WeatherEntry.COLUMN_DATETEXT + " >= ? ";
+    private static final String sLocationSettingWithStartDateSelection = WeatherContract.LocationEntry.TABLE_NAME+ "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " + WeatherContract.WeatherEntry.COLUMN_DATETEXT + " >= ? ";
     //Query for the weather based on the location and date
-    private static final String sLocationSettingAndDaySelection =  WeatherContract.LocationEntry.TABLE_NAME +"." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTINGS + " = ? AND " + WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ? ";
+    private static final String sLocationSettingAndDaySelection =  WeatherContract.LocationEntry.TABLE_NAME +"." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " + WeatherContract.WeatherEntry.COLUMN_DATETEXT + " = ? ";
 
 
     //Query used to get the Weather and Location based on the location id and the date (if applies)
