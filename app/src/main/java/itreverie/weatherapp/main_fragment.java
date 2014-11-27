@@ -163,8 +163,9 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
                     String detailString = String.format("%s - %s - %s/%s",
                             dateString, weatherDescription, high, low);
 
+                    //We are passing the raw date in order to get the rest of the information to display the full detail
                     Intent intent = new Intent(getActivity(), detail_activity.class)
-                            .putExtra(Intent.EXTRA_TEXT, detailString);
+                            .putExtra(detail_activity.DATE_KEY, cursor.getString(COL_WEATHER_DATE));
                     startActivity(intent);
                 }
             }

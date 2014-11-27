@@ -40,7 +40,9 @@
         </activity>
         <provider
                 android:authorities="itreverie.weatherapp"
-                android:name=".data.WeatherProvider"></provider>
+                android:name=".data.WeatherProvider"
+                android:enabled="true"
+                android:exported="true"></provider>
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
