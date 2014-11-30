@@ -1,4 +1,4 @@
-package itreverie.weatherapp.processing;
+package itreverie.weatherapp;
 
 import android.util.Log;
 

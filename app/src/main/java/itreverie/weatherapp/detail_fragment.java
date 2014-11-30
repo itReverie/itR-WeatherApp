@@ -1,4 +1,4 @@
-package itreverie.weatherapp.processing;
+package itreverie.weatherapp;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,10 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import itreverie.weatherapp.R;
-import itreverie.weatherapp.Utility;
 import itreverie.weatherapp.data.WeatherContract;
 
 /**
@@ -44,7 +43,15 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     private String mLocation;
     private String mForecastString;
 
-
+    private ImageView mIconView ;
+    private TextView   mDateView;
+    private TextView      mFriendlyDateView;
+    private TextView      mDescriptionView;
+    private TextView      mHighTempView;
+    private TextView      mLowTempView;
+    private TextView      mHumidityView;
+    private TextView      mWindView;
+    private TextView      mPressureView;
 
     private static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
@@ -52,6 +59,12 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
+            WeatherContract.WeatherEntry.COLUMN_PRESSURE,
+            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherContract.WeatherEntry.COLUMN_DEGREES,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
     };
 
 
@@ -84,17 +97,15 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
 
         //Populate it with the detail fragment XML
         View rootView = inflater.inflate(R.layout.detail_fragment,container, false);
-        /*
-        //Get the intent
-        Intent intent= getActivity().getIntent();
-        //If the intent is different that null and it has an extra text
-        if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT))
-        {
-            //Write that text in the Text View
-            mForecastString= intent.getStringExtra(Intent.EXTRA_TEXT);
-            ((TextView) rootView.findViewById(R.id.detail_text)).setText(mForecastString);
-        }
-        */
+        mIconView = (ImageView) rootView.findViewById(R.id.list_item_icon);
+        mDateView= (TextView) rootView.findViewById(R.id.detail_date_textview);
+        mFriendlyDateView= (TextView) rootView.findViewById(R.id.detail_date_day);
+        mDescriptionView= (TextView) rootView.findViewById(R.id.detail_forecast_textview);
+        mHighTempView= (TextView) rootView.findViewById(R.id.detail_high_textview);
+        mLowTempView= (TextView) rootView.findViewById(R.id.detail_low_textview);
+        mHumidityView= (TextView) rootView.findViewById(R.id.detail_humidity_textview);
+        mWindView= (TextView) rootView.findViewById(R.id.detail_wind_textview);
+        mPressureView= (TextView) rootView.findViewById(R.id.detail_pressure_textview);
         return rootView;
     }
 
@@ -183,25 +194,45 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!cursor.moveToFirst()) { return; }
 
-        String dateString = Utility.formatDate(
-                cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT)));
-        ((TextView) getView().findViewById(R.id.detail_date_textview))
-                .setText(dateString);
+        //DAY
+        String dateString = Utility.formatDate(cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT)));
+        //((TextView) getView().findViewById(R.id.detail_date_textview)).setText(dateString);
+        String friendlyDateText= Utility.getDayName(getActivity(),dateString);
+        String dateText= Utility.getFormattedMonthDay(getActivity(),dateString);
+        mFriendlyDateView.setText(friendlyDateText);
+        mDateView.setText(dateText);
 
-        String weatherDescription =
-                cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
-        ((TextView) getView().findViewById(R.id.detail_forecast_textview))
-                .setText(weatherDescription);
+        //DATE
+        String weatherDescription = cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
+        //((TextView) getView().findViewById(R.id.detail_forecast_textview)).setText(weatherDescription);
+        mDescriptionView.setText(weatherDescription);
 
         boolean isMetric = Utility.isMetric(getActivity());
 
-        String high = Utility.formatTemperature(
-                cursor.getDouble(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP)), isMetric);
-        ((TextView) getView().findViewById(R.id.detail_high_textview)).setText(high);
+        //HIGHT TEMP
+        String high = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex( WeatherContract.WeatherEntry.COLUMN_MAX_TEMP)), isMetric);
+        //((TextView) getView().findViewById(R.id.detail_high_textview)).setText(high);
+        mHighTempView.setText(high);
 
-        String low = Utility.formatTemperature(
-                cursor.getDouble(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP)), isMetric);
-        ((TextView) getView().findViewById(R.id.detail_low_textview)).setText(low);
+        //LOW TEMP
+        String low = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP)), isMetric);
+        //((TextView) getView().findViewById(R.id.detail_low_textview)).setText(low);
+        mLowTempView.setText(low);
+
+        //HUMIDITY
+        float humidity = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_HUMIDITY));
+        mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
+
+        //WIND SPEED AND DIRECTION
+        float windSpeedStr = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED));
+        float windDirStr = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DEGREES));
+        mWindView.setText(Utility.getFormattedWind(getActivity(),windSpeedStr,windDirStr));
+
+        //PRESSURE
+        float pressure = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
+        mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
+
+
 
         // We still need this for the share intent
         mForecastString = String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);

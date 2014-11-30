@@ -6,8 +6,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import itreverie.weatherapp.processing.detail_fragment;
-
 
 public class detail_activity extends ActionBarActivity {
 

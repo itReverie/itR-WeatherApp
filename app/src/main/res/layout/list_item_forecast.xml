@@ -8,39 +8,67 @@
     android:padding="16dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/list_item_date_textview" />
+        android:id="@+id/list_item_icon"
+        android:src="@drawable/ic_launcher" />
+
+
+
+
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:background="#ff91fffa">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text=" - " />
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_date_textview"
+        android:text="Tomorrow"/>
+
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_forecast_textview"
+        android:text="Rainny"/>
+
+    </LinearLayout>
+
+
+
+
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/list_item_forecast_textview" />
+        android:background="#ff7a71ff">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text=" - " />
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_high_textview"
+        android:text="20"/>
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/list_item_high_textview" />
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_low_textview"
+        android:text="8"/>
+    </LinearLayout>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="/" />
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/list_item_low_textview" />
 
 </LinearLayout>

@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.Date;
 
@@ -31,7 +29,7 @@ import itreverie.weatherapp.data.WeatherContract;
  * A placeholder fragment containing a simple view.
  */
 public  class main_fragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private SimpleCursorAdapter mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
     private static final int FORECAST_LOADER = 0;
     private String mLocation;
 
@@ -99,25 +97,9 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
 
         // The SimpleCursorAdapter will take data from the database through the
         // Loader and use it to populate the ListView it's attached to.
-        mForecastAdapter = new SimpleCursorAdapter(
-                getActivity(),//Context
-                R.layout.list_item_forecast,//Layout
-                null,
-                // FROM: the column names to use to fill the textviews
-                new String[]{WeatherContract.WeatherEntry.COLUMN_DATETEXT,
-                        WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
-                        WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-                        WeatherContract.WeatherEntry.COLUMN_MIN_TEMP
-                },
-                //  TO: the textviews to fill with the data pulled from the columns above
-                new int[]{R.id.list_item_date_textview,
-                        R.id.list_item_forecast_textview,
-                        R.id.list_item_high_textview,
-                        R.id.list_item_low_textview
-                },
-                0
-        );
+        mForecastAdapter = new ForecastAdapter(getActivity(),null,0);
 
+        /*
         mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -140,7 +122,7 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
                 return false;
             }
         });
-
+    */
         //SETTING THE INFORMATION FOR THE ITEM DETAILS IN THE VIEW
         View rootView = inflater.inflate(R.layout.main_fragment, container, false);
 
@@ -151,6 +133,8 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = mForecastAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
+
+                    /*
                     String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
                     String weatherDescription = cursor.getString(COL_WEATHER_DESC);
 
@@ -162,7 +146,7 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
 
                     String detailString = String.format("%s - %s - %s/%s",
                             dateString, weatherDescription, high, low);
-
+                    */
                     //We are passing the raw date in order to get the rest of the information to display the full detail
                     Intent intent = new Intent(getActivity(), detail_activity.class)
                             .putExtra(detail_activity.DATE_KEY, cursor.getString(COL_WEATHER_DATE));
