@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import itreverie.weatherapp.data.WeatherContract;
 
 
 /**
@@ -20,6 +21,7 @@ public class ForecastAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
+    public static final int COL_WEATHER_ID = 0;
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
     private static final int VIEW_TYPE_COUNT = 2;
@@ -63,22 +65,40 @@ public class ForecastAdapter extends CursorAdapter {
         //No I need to read from the viewHodler
         ViewHolder viewHolder= (ViewHolder) view.getTag();
 
-        // Read weather icon ID from cursor
-        int weatherId = cursor.getInt(main_fragment.COL_WEATHER_ID);
-        // Use placeholder image for now
-        ImageView iconView = (ImageView) view.findViewById(R.id.list_item_icon);
-        viewHolder.iconView.setImageResource(R.drawable.ic_launcher);
+
+
+        int viewType=getItemViewType(cursor.getPosition());
+        //WeatherContract.WeatherEntry.
+        //int weatherId = cursor.getInt(main_fragment.COL_WEATHER_ID);
+        //int weatherId = cursor.getInt(COL_WEATHER_ID);
+        int weatherId= cursor.getInt(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
+        switch (viewType)
+        {
+            //GETTING ART RESOURCE (color image)
+            case VIEW_TYPE_TODAY:
+            {
+                viewHolder.iconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+                break;
+            }
+            //GETTING ICON CONDITION (gray image)
+            case VIEW_TYPE_FUTURE_DAY:
+            {
+                viewHolder.iconView.setImageResource(Utility.getIconResourceForWeatherCondition(weatherId));
+                break;
+            }
+        }
 
         // Read date from cursor
         String dateString = cursor.getString(main_fragment.COL_WEATHER_DATE);
         // Find TextView and set formatted date on it
-        TextView dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
+        //TextView dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
+        String test= Utility.getFriendlyDayString(context, dateString);
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateString));
 
         // Read weather forecast from cursor
         String description = cursor.getString(main_fragment.COL_WEATHER_DESC);
         // Find TextView and set weather forecast on it
-        TextView descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
+        //TextView descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
         viewHolder.descriptionView.setText(description);
 
         // Read user preference for metric or imperial temperature units
@@ -87,13 +107,13 @@ public class ForecastAdapter extends CursorAdapter {
         // Read high temperature from cursor
         float high = cursor.getFloat(main_fragment.COL_WEATHER_MAX_TEMP);
         // Find TextView and set weather forecast on it
-        TextView highTemperatureView = (TextView) view.findViewById(R.id.list_item_high_textview);
+        //TextView highTemperatureView = (TextView) view.findViewById(R.id.list_item_high_textview);
         viewHolder.highTempView.setText(Utility.formatTemperature(context,high,isMetric));
 
         // Read low temperature from cursor
         float low = cursor.getFloat(main_fragment.COL_WEATHER_MIN_TEMP);
         // Find TextView and set weather forecast on it
-        TextView lowTemperatureView = (TextView) view.findViewById(R.id.list_item_low_textview);
+        //TextView lowTemperatureView = (TextView) view.findViewById(R.id.list_item_low_textview);
         viewHolder.lowTempView.setText(Utility.formatTemperature(context,low,isMetric));
 
     }

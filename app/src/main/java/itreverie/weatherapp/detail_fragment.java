@@ -97,10 +97,15 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
 
         //Populate it with the detail fragment XML
         View rootView = inflater.inflate(R.layout.detail_fragment,container, false);
+
+        mDateView= (TextView) rootView.findViewById(R.id.detail_date_day);
+        mFriendlyDateView= (TextView) rootView.findViewById(R.id.detail_date_textview);
+
+
         mIconView = (ImageView) rootView.findViewById(R.id.list_item_icon);
-        mDateView= (TextView) rootView.findViewById(R.id.detail_date_textview);
-        mFriendlyDateView= (TextView) rootView.findViewById(R.id.detail_date_day);
         mDescriptionView= (TextView) rootView.findViewById(R.id.detail_forecast_textview);
+
+
         mHighTempView= (TextView) rootView.findViewById(R.id.detail_high_textview);
         mLowTempView= (TextView) rootView.findViewById(R.id.detail_low_textview);
         mHumidityView= (TextView) rootView.findViewById(R.id.detail_humidity_textview);
@@ -118,8 +123,6 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
-
         if (savedInstanceState != null) {
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
@@ -131,13 +134,9 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     public void onCreateOptionsMenu(Menu menu,MenuInflater inflater)
     {
         inflater.inflate(R.menu.share,menu);
-
         MenuItem menuItem= menu.findItem(R.id.action_share);
-
         //ShareActionProvider mShareActionProvider =menuItem.getActionProvider();
-
         mShareActionProvider=(ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
         if(mShareActionProvider != null)
         {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
@@ -194,13 +193,17 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!cursor.moveToFirst()) { return; }
 
+        //ICON
+        int weatherId= cursor.getInt(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
+        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+
         //DAY
-        String dateString = Utility.formatDate(cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT)));
+        String dateString = cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT));//Utility.formatDate(
         //((TextView) getView().findViewById(R.id.detail_date_textview)).setText(dateString);
         String friendlyDateText= Utility.getDayName(getActivity(),dateString);
         String dateText= Utility.getFormattedMonthDay(getActivity(),dateString);
-        mFriendlyDateView.setText(friendlyDateText);
-        mDateView.setText(dateText);
+        mFriendlyDateView.setText(dateText);
+        mDateView.setText(friendlyDateText);
 
         //DATE
         String weatherDescription = cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC));
@@ -231,6 +234,7 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         //PRESSURE
         float pressure = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
         mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
+
 
 
 
