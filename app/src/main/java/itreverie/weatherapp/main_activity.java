@@ -24,12 +24,7 @@ public class main_activity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         Log.v(LOG_TAG, "onCreate");
         setContentView(R.layout.main_activity);
-        if (savedInstanceState == null) {
 
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.mainActivityContainer, new main_fragment())
-                    .commit();
-        }
     }
 
     @Override
