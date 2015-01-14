@@ -14,10 +14,10 @@ import android.view.MenuItem;
 import java.util.Locale;
 
 
-public class main_activity extends ActionBarActivity {
+public class main_activity extends ActionBarActivity implements main_fragment.Callback {
 
     private final String LOG_TAG = main_activity.class.getSimpleName();
-
+    private Boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,27 @@ public class main_activity extends ActionBarActivity {
         Log.v(LOG_TAG, "onCreate");
         setContentView(R.layout.main_activity);
 
+        //If it finds a detail container in the xml
+        if(findViewById(R.id.weather_detail_container) != null)
+        {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+            if(savedInstanceState == null)
+            {
+                // In two-pane mode, show the detail view in this activity by
+                // adding or replacing the detail fragment using a
+                // fragment transaction.
+                getSupportFragmentManager().beginTransaction().
+                        replace(R.id.weather_detail_container, new detail_fragment())
+                        .commit();
+            }
+        }
+        else
+        {
+            mTwoPane = false;
+        }
     }
 
     @Override
@@ -54,6 +75,18 @@ public class main_activity extends ActionBarActivity {
 
     private void openPreferredLocationInMap()
     {
+
+        //-------------------------------------------------------
+        //Another way to get the URI location
+        // Using the URI scheme for showing a location found on a map.  This super-handy
+        // intent can is detailed in the "Common Intents" page of Android's developer site:
+        // http://developer.android.com/guide/components/intents-common.html#Maps
+        //Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
+        //        .appendQueryParameter("q", location)
+        //        .build();
+        //-------------------------------------------------------
+
+
         SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
         String location=sharedPref.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
         String geoLocation = String.format(Locale.ENGLISH, "geo:0,0?q=" + location);
@@ -62,7 +95,30 @@ public class main_activity extends ActionBarActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+        else {
+            Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
+        }
     }
 
+    @Override
+    public void onItemSelected(String date) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putString(detail_fragment.DATE_KEY, date);
 
+            detail_fragment fragment = new detail_fragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, detail_activity.class)
+                    .putExtra(detail_activity.DATE_KEY, date);
+            startActivity(intent);
+        }
+    }
 }

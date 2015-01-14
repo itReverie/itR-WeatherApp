@@ -67,6 +67,9 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
             WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
     };
 
+    private String mDateStr;
+
+
 
     public detail_fragment() {
         setHasOptionsMenu(true);
@@ -84,9 +87,25 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onResume() {
         super.onResume();
-        if (mLocation != null &&
-                !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+
+        //-------------------------------------------------------
+        //In order to pass information among fragments quickly we can se intents
+        //However, if we want to keep a good design for phones and tablets we should use Arguments and callbacks
+        //Intent intent= getActivity().getIntent();
+        //if (intent != null && intent.hasExtra(detail_activity.DATE_KEY) &&
+        //        mLocation != null &&
+        //        !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             //If the location has changed we need to restart the loader with the new URI
+        //    getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        //}
+        //-------------------------------------------------------
+
+
+
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey(detail_activity.DATE_KEY) &&
+                mLocation != null &&
+                !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
@@ -94,6 +113,20 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        //Passing arguments to the detail fragment
+
+        //Read the detail info from the detail_activity
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mDateStr = arguments.getString(detail_activity.DATE_KEY);
+        }
+
+        //Read the location from the saaveInstanceState
+        if (savedInstanceState != null) {
+            mLocation = savedInstanceState.getString(LOCATION_KEY);
+        }
+
 
         //Populate it with the detail fragment XML
         View rootView = inflater.inflate(R.layout.detail_fragment,container, false);
@@ -122,11 +155,23 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+
         if (savedInstanceState != null) {
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
-        super.onActivityCreated(savedInstanceState);
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey(detail_activity.DATE_KEY)) {
+            getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        }
+        /*
+        //In case we are using intents
+        Intent intent = getActivity().getIntent();
+        if (intent != null && intent.hasExtra(detail_activity.DATE_KEY))
+        {
+            getLoaderManager().initLoader(DETAIL_LOADER, null,this);
+        }
+        */
     }
 
 
@@ -160,9 +205,15 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         //String forecastDate= getActivity().getIntent().getDataString();
-        Bundle extras = getActivity().getIntent().getExtras();
-        String forecastDate = extras.getString(DATE_KEY);
-        //The opposite would be put string
+
+        //--------------------------------------------------------------------
+        //When we ere using just intents and not considering the rotation and tablet we were
+        //taking the value from the activity intent
+        //Bundle extras = getActivity().getIntent().getExtras();
+        //String forecastDate = extras.getString(DATE_KEY);
+        //--------------------------------------------------------------------
+
+        // /The opposite would be put string
         //extras.putString(LOCATION_KEY, mLocation);
 
 
@@ -172,7 +223,7 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         mLocation = Utility.getPreferredLocation(getActivity());
 
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                mLocation, forecastDate);
+                mLocation, mDateStr);
 
         Log.v(LOG_TAG, weatherForLocationUri.toString());
 

@@ -4,7 +4,6 @@ package itreverie.weatherapp;
  * Created by Brenda on 11/22/2014.
  */
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,6 +61,19 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_LOCATION_SETTING = 5;
 
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String date);
+    }
+
+
     //CONSTRUCTOR
     public main_fragment() {
     }
@@ -92,7 +104,6 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
-
     //LIST ITEMS IN THE MAIN LAYOUT
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -101,30 +112,6 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
         // Loader and use it to populate the ListView it's attached to.
         mForecastAdapter = new ForecastAdapter(getActivity(),null,0);
 
-        /*
-        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                boolean isMetric = Utility.isMetric(getActivity());
-                switch (columnIndex) {
-                    case COL_WEATHER_MAX_TEMP:
-                    case COL_WEATHER_MIN_TEMP: {
-                        // we have to do some formatting and possibly a conversion
-                        ((TextView) view).setText(Utility.formatTemperature(
-                                cursor.getDouble(columnIndex), isMetric));
-                        return true;
-                    }
-                    case COL_WEATHER_DATE: {
-                        String dateString = cursor.getString(columnIndex);
-                        TextView dateView = (TextView) view;
-                        dateView.setText(Utility.formatDate(dateString));
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-    */
         //SETTING THE INFORMATION FOR THE ITEM DETAILS IN THE VIEW
         View rootView = inflater.inflate(R.layout.main_fragment, container, false);
 
@@ -135,24 +122,9 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = mForecastAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
+                    ((Callback)getActivity())
+                            .onItemSelected(cursor.getString(COL_WEATHER_DATE));
 
-                    /*
-                    String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
-                    String weatherDescription = cursor.getString(COL_WEATHER_DESC);
-
-                    boolean isMetric = Utility.isMetric(getActivity());
-                    String high = Utility.formatTemperature(
-                            cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
-                    String low = Utility.formatTemperature(
-                            cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
-
-                    String detailString = String.format("%s - %s - %s/%s",
-                            dateString, weatherDescription, high, low);
-                    */
-                    //We are passing the raw date in order to get the rest of the information to display the full detail
-                    Intent intent = new Intent(getActivity(), detail_activity.class)
-                            .putExtra(detail_activity.DATE_KEY, cursor.getString(COL_WEATHER_DATE));
-                    startActivity(intent);
                 }
             }
         });
