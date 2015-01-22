@@ -11,36 +11,26 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/list_item_icon"
-       />
-
-
-
-
-
-
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_icon"/>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingLeft="16dp"
-        android:background="#ff91fffa">
+        android:paddingLeft="16dp">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_date_textview"
-        android:text="Tomorrow"/>
+        android:id="@+id/list_item_date_textview"/>
 
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_forecast_textview"
-        android:text="Rainny"/>
+        android:id="@+id/list_item_forecast_textview"/>
 
     </LinearLayout>
 
@@ -53,20 +43,17 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="#ff7a71ff">
+        android:layout_height="wrap_content">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_high_textview"
-        android:text="20"/>
+        android:id="@+id/list_item_high_textview"/>
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_low_textview"
-        android:text="8"/>
+        android:id="@+id/list_item_low_textview"/>
     </LinearLayout>
 
 
