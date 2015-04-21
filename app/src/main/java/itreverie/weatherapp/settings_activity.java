@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 
 import itreverie.weatherapp.data.WeatherContract;
+import itreverie.weatherapp.sync.SunshineSyncAdapter;
 
 import static android.preference.Preference.OnPreferenceChangeListener;
 
@@ -49,12 +50,6 @@ public class settings_activity extends PreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //this.setupActionBar();
-
-        // TODO: Add preferences from XML
-        //addPreferencesFromResource(R.xml.pref_general);
-        //bindPreferenceSummaryToValue(findPreference("example_text"));
-        //PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
     }
 
     @Override
@@ -79,10 +74,7 @@ public class settings_activity extends PreferenceActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
         setupSimplePreferencesScreen();
-
-
     }
 
     /**
@@ -106,12 +98,6 @@ public class settings_activity extends PreferenceActivity
 
         // Add 'notifications' preferences, and a corresponding header.
         fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_temperature);
-        //getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_temperature);
-
-        // Add 'notifications' preferences, and a corresponding header.
-        fakeHeader = new PreferenceCategory(this);
         fakeHeader.setTitle(R.string.pref_header_notifications);
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_notification);
@@ -128,9 +114,6 @@ public class settings_activity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_temperature_key)));
         bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-        //bindPreferenceSummaryToValue(findPreference("example_list"));
-        //bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-
     }
 
     /** {@inheritDoc} */
@@ -187,7 +170,7 @@ public class settings_activity extends PreferenceActivity
             } else if (preference instanceof RingtonePreference) {
                 // For ringtone preferences, look up the correct display value
                 // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
+               /* if (TextUtils.isEmpty(stringValue)) {
                     // Empty values correspond to 'silent' (no ringtone).
                     preference.setSummary(R.string.pref_ringtone_silent);
 
@@ -204,7 +187,7 @@ public class settings_activity extends PreferenceActivity
                         String name = ringtone.getTitle(preference.getContext());
                         preference.setSummary(name);
                     }
-                }
+                }*/
 
             } else {
                 // For all other preferences, set the summary to the value's
@@ -214,18 +197,12 @@ public class settings_activity extends PreferenceActivity
                 // are we starting the preference activity?
                 if ( !mBindingPreference ) {
                     if (preference.getKey().equals(getString(R.string.pref_location_key))) {
-                        FetchWeatherTask weatherTask = new FetchWeatherTask(preference.getContext());
-                        String location = newValue.toString();
-                        weatherTask.execute(location);
+                        SunshineSyncAdapter.syncImmediately(preference.getContext());
                     } else {
                         // notify code that weather may be impacted
                         getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
                     }
                 }
-                //bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
-
-
-
             }
             return true;
         }

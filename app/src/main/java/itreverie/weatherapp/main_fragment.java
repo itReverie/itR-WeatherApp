@@ -4,6 +4,7 @@ package itreverie.weatherapp;
  * Created by Brenda on 11/22/2014.
  */
 
+
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.ListView;
 import java.util.Date;
 
 import itreverie.weatherapp.data.WeatherContract;
+import itreverie.weatherapp.sync.SunshineSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -33,6 +35,7 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
     private String mLocation;
     private ListView mListView;
     private int mPosition = ListView.INVALID_POSITION;
+    private boolean mUseTodayLayout;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -146,6 +149,9 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
             // swapout in onLoadFinished.
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
+
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+
         return rootView;
     }
 
@@ -157,9 +163,9 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
         super.onActivityCreated(savedInstanceState);
     }
 
+
     private void updateWeather() {
-        String location = Utility.getPreferredLocation(getActivity());
-        new FetchWeatherTask(getActivity()).execute(location);
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     @Override
@@ -169,6 +175,7 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
         if (mLocation != null && !mLocation.equals(preferedLocation)) {
             getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
         }
+        //updateWeather();
     }
 
     @Override
@@ -226,5 +233,13 @@ public  class main_fragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         //Clears the data
         mForecastAdapter.swapCursor(null);
+    }
+
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
+        if (mForecastAdapter != null) {
+            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 }

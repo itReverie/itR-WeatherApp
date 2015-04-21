@@ -13,6 +13,8 @@ import android.view.MenuItem;
 
 import java.util.Locale;
 
+import itreverie.weatherapp.sync.SunshineSyncAdapter;
+
 
 public class main_activity extends ActionBarActivity implements main_fragment.Callback {
 
@@ -46,6 +48,13 @@ public class main_activity extends ActionBarActivity implements main_fragment.Ca
         {
             mTwoPane = false;
         }
+
+        main_fragment forecastFragment =  ((main_fragment)getSupportFragmentManager()
+                .findFragmentById(R.id.mainActivityContainer));
+        forecastFragment.setUseTodayLayout(!mTwoPane);
+
+        SunshineSyncAdapter.initializeSyncAdapter(this);
+
     }
 
     @Override

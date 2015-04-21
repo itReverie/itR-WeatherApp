@@ -101,7 +101,11 @@
 
             android:id="@+id/detail_pressure_textview" />
 
-
-
+<itreverie.weatherapp.CompassView
+    android:id="@+id/detail_compass"
+    android:layout_height="200dp"
+    android:layout_width="200dp"
+    android:layout_marginTop="16dp"/>
 </LinearLayout>
+
 </ScrollView>

@@ -26,9 +26,18 @@ public class ForecastAdapter extends CursorAdapter {
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
     private static final int VIEW_TYPE_COUNT = 2;
 
+
+    // Flag to determine if we want to use a separate view for "today".
+    private boolean mUseTodayLayout=true;
+
+    public void setUseTodayLayout(boolean useTodayLayout)
+    {
+        mUseTodayLayout = useTodayLayout;
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return position == 0 ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0  && mUseTodayLayout)? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -66,11 +75,13 @@ public class ForecastAdapter extends CursorAdapter {
         ViewHolder viewHolder= (ViewHolder) view.getTag();
 
 
-
+        //This item determines the position of an item in the list
         int viewType=getItemViewType(cursor.getPosition());
         //WeatherContract.WeatherEntry.
-        //int weatherId = cursor.getInt(main_fragment.COL_WEATHER_ID);
         //int weatherId = cursor.getInt(COL_WEATHER_ID);
+        //Option 2
+        //int weatherId = cursor.getInt(main_fragment.COL_WEATHER_ID);
+        //Option 1
         int weatherId= cursor.getInt(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
         switch (viewType)
         {
@@ -101,6 +112,10 @@ public class ForecastAdapter extends CursorAdapter {
         //TextView descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
         viewHolder.descriptionView.setText(description);
 
+
+        // For accessibility, add a content description to the icon field
+        viewHolder.iconView.setContentDescription(description);
+
         // Read user preference for metric or imperial temperature units
         boolean isMetric = Utility.isMetric(context);
 
@@ -108,13 +123,13 @@ public class ForecastAdapter extends CursorAdapter {
         float high = cursor.getFloat(main_fragment.COL_WEATHER_MAX_TEMP);
         // Find TextView and set weather forecast on it
         //TextView highTemperatureView = (TextView) view.findViewById(R.id.list_item_high_textview);
-        viewHolder.highTempView.setText(Utility.formatTemperature(context,high,isMetric));
+        viewHolder.highTempView.setText(Utility.formatTemperature(context,high));
 
         // Read low temperature from cursor
         float low = cursor.getFloat(main_fragment.COL_WEATHER_MIN_TEMP);
         // Find TextView and set weather forecast on it
         //TextView lowTemperatureView = (TextView) view.findViewById(R.id.list_item_low_textview);
-        viewHolder.lowTempView.setText(Utility.formatTemperature(context,low,isMetric));
+        viewHolder.lowTempView.setText(Utility.formatTemperature(context,low));
 
     }
 

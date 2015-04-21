@@ -52,6 +52,8 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
     private TextView      mHumidityView;
     private TextView      mWindView;
     private TextView      mPressureView;
+    private CompassView compassView;
+
 
     private static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
@@ -144,6 +146,7 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         mHumidityView= (TextView) rootView.findViewById(R.id.detail_humidity_textview);
         mWindView= (TextView) rootView.findViewById(R.id.detail_wind_textview);
         mPressureView= (TextView) rootView.findViewById(R.id.detail_pressure_textview);
+        compassView     = (CompassView)rootView.findViewById(R.id.detail_compass);
         return rootView;
     }
 
@@ -261,15 +264,19 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         //((TextView) getView().findViewById(R.id.detail_forecast_textview)).setText(weatherDescription);
         mDescriptionView.setText(weatherDescription);
 
+        // For accessibility, add a content description to the icon field
+        mIconView.setContentDescription(weatherDescription);
+
+
         boolean isMetric = Utility.isMetric(getActivity());
 
         //HIGHT TEMP
-        String high = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex( WeatherContract.WeatherEntry.COLUMN_MAX_TEMP)), isMetric);
+        String high = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex( WeatherContract.WeatherEntry.COLUMN_MAX_TEMP)));
         //((TextView) getView().findViewById(R.id.detail_high_textview)).setText(high);
         mHighTempView.setText(high);
 
         //LOW TEMP
-        String low = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP)), isMetric);
+        String low = Utility.formatTemperature( getActivity(),cursor.getDouble(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP)));
         //((TextView) getView().findViewById(R.id.detail_low_textview)).setText(low);
         mLowTempView.setText(low);
 
@@ -281,6 +288,11 @@ public class detail_fragment extends Fragment implements LoaderManager.LoaderCal
         float windSpeedStr = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED));
         float windDirStr = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DEGREES));
         mWindView.setText(Utility.getFormattedWind(getActivity(),windSpeedStr,windDirStr));
+
+        //final int direction= cursor.getInt(Utility.computeWindDirectionId());
+        int direction= (int) windDirStr;
+        compassView.setDirectionDegrees(direction);
+
 
         //PRESSURE
         float pressure = cursor.getFloat(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
