@@ -91,6 +91,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         String format = "json";
         String units = "metric";
         int numDays = 14;
+        String apkID = "7a688ab24d7854d81b3d2af0772a77bb";
 
         try {
             // Construct the URL for the OpenWeatherMap query
@@ -102,12 +103,14 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             final String FORMAT_PARAM = "mode";
             final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
+            final String APK_ID = "APPID";
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, locationQuery)
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                    .appendQueryParameter(APK_ID, apkID)
                     .build();
 
             URL url = new URL(builtUri.toString());
