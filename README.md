@@ -16,3 +16,4 @@ Good practices:
 - Organize and clean code for further mantainance or development.
 
 ![logic]( http://www.itreverie.com/wp-content/uploads/2015/04/WeatherApp.png)
+![logic]( http://www.itreverie.com/githubimages/itR-weather-app.png)
