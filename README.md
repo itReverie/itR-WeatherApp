@@ -1,7 +1,7 @@
-itR-WeatherApp
+#AndroidWeatherApp
 ==============
 
-This app retrieves information from a third party API and renders the weather according the postal code.
+This Android app retrieves information from a third party API and renders the weather according the postal code.
 
 Android concpets implemented:
 - Intents: Explicit, Implicit, Shared and Broadcast.
@@ -15,5 +15,4 @@ Good practices:
 - UI design mobile patterns
 - Organize and clean code for further mantainance or development.
 
-![logic]( http://www.itreverie.com/wp-content/uploads/2015/04/WeatherApp.png)
-![logic]( http://www.itreverie.com/githubimages/itR-weather-app.png)
+![logic]( http://www.itreverie.com/githubimages/itReverie-app-android-weather.png)
